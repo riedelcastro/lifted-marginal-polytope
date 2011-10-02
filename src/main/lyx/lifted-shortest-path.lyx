@@ -1,0 +1,1080 @@
+#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\begin_modules
+theorems-ams
+\end_modules
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Notes on Shortest Path in Graph with Symmetries
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\M}{\mathcal{M}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\x}{\mathbf{x}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\E}{\text{E}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\S}{\mathcal{S}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\b}{\mathbf{b}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\R}{\mathbb{R}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\N}{\mathbb{N}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\Int}{\mathbb{N}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\symg}{\mathbb{S}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\symgn}{\symg_{n}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\intlist}[1]{\{1,2,\ldots,#1\}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\subgroup}{\le}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\aut}{\pi}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\Aut}{\mathrm{Aut}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\orbit}{\Delta}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\Orbit}{\boldsymbol{\orbit}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\cluster}{c}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\Cluster}{\mathcal{C}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\Clustersize}[1]{\Cluster_{n}^{#1}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\tup}{\tau}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\Tup}{\mathcal{T}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\Tupsize}[1]{\Tup_{n}^{#1}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\tupset}{\mathrm{set}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\permvec}[2]{#1_{#2(1)},\ldots,#1_{#2(n)}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Shortest Paths for nodes Orbits for fixed Nodes
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $\Aut_{s}\left(G\right)$
+\end_inset
+
+ be the set of automorphisms 
+\begin_inset Formula $\pi$
+\end_inset
+
+ so that 
+\begin_inset Formula $\pi\left(s\right)=s$
+\end_inset
+
+.
+ Let the equivalence 
+\begin_inset Formula $v\sim_{s}w$
+\end_inset
+
+ mean that there exists a 
+\begin_inset Formula $\pi\in\Aut_{s}\left(G\right)$
+\end_inset
+
+ with 
+\begin_inset Formula $\pi\left(v\right)=w$
+\end_inset
+
+.
+ We will say that two paths 
+\begin_inset Formula $p^{s,v}$
+\end_inset
+
+ and 
+\begin_inset Formula $p^{s,w}$
+\end_inset
+
+ are 
+\begin_inset Formula $s$
+\end_inset
+
+-equivalent, 
+\begin_inset Formula $p^{s,v}\sim_{s}p^{s,w}$
+\end_inset
+
+ ,if 
+\begin_inset Formula $\left|p^{s,v}\right|=\left|p^{s,w}\right|$
+\end_inset
+
+ and for all 
+\begin_inset Formula $1\leq i\leq\left|p_{i}^{s,v}\right|$
+\end_inset
+
+ holds 
+\begin_inset Formula $p_{i}^{s,v}\sim_{s}p_{i}^{s,w}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Define compress graph 
+\begin_inset Formula $\bar{G_{s}}=\left(\bar{V},\bar{E},\bar{d}\right)$
+\end_inset
+
+ using the vertex orbits of 
+\begin_inset Formula $\Aut_{s}$
+\end_inset
+
+ as 
+\begin_inset Formula $\bar{V}$
+\end_inset
+
+ and distance 
+\begin_inset Formula \[
+\bar{d}\left(\bar{u},\bar{v}\right)=\min_{\bar{e}\in\left[\bar{u},\bar{v}\right]}d\left(\bar{e}\right)\]
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Proposition
+\begin_inset Formula $v\sim_{s}w$
+\end_inset
+
+ implies 
+\begin_inset Formula $p^{s,v}\sim_{s}p^{s,w}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+That is, nodes in the same orbit have equivalent paths to 
+\begin_inset Formula $s$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $V$
+\end_inset
+
+ and 
+\begin_inset Formula $W$
+\end_inset
+
+ be two directly connected orbits, then we define 
+\begin_inset Formula $d\left(V,W\right)$
+\end_inset
+
+ to be the minimum distance over all the connections between 
+\begin_inset Formula $V$
+\end_inset
+
+ and 
+\begin_inset Formula $W$
+\end_inset
+
+.
+ With 
+\begin_inset Formula $f$
+\end_inset
+
+ we have a weighted orbit graphs whose nodes are the orbits of 
+\begin_inset Formula $G$
+\end_inset
+
+, and two orbit nodes are connected if there is a direct connection between
+ their nodes.
+ The weight of the edge is the distance defined above.
+ Let us call this graph 
+\begin_inset Formula $O$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Proposition
+For every node
+\begin_inset Formula $V$
+\end_inset
+
+ in 
+\begin_inset Formula $O$
+\end_inset
+
+ the length 
+\begin_inset Formula $d\left(P^{\left\{ s\right\} ,V}\right)$
+\end_inset
+
+ of the shortest path between 
+\begin_inset Formula $\left\{ s\right\} $
+\end_inset
+
+ and 
+\begin_inset Formula $V$
+\end_inset
+
+ equals the length 
+\begin_inset Formula $d\left(p^{s,v}\right)$
+\end_inset
+
+ of the shortest path 
+\begin_inset Formula $p^{s,v}$
+\end_inset
+
+ from 
+\begin_inset Formula $s$
+\end_inset
+
+ to 
+\begin_inset Formula $v$
+\end_inset
+
+ for all 
+\begin_inset Formula $v\in V$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+Let us assume there is a 
+\begin_inset Formula $v$
+\end_inset
+
+ in 
+\begin_inset Formula $V$
+\end_inset
+
+ with a shorter path from 
+\begin_inset Formula $s$
+\end_inset
+
+.
+ Then we generate the orbit path for this path, and would get a shorter
+ orbit path for 
+\begin_inset Formula $s$
+\end_inset
+
+ to 
+\begin_inset Formula $V$
+\end_inset
+
+.
+ Let us assume there is a longer shortest path between 
+\begin_inset Formula $s$
+\end_inset
+
+ and 
+\begin_inset Formula $v$
+\end_inset
+
+.
+ Then we generate a propositional path (with no inner-orbit edges) from
+ 
+\begin_inset Formula $s$
+\end_inset
+
+ to 
+\begin_inset Formula $v$
+\end_inset
+
+ using the orbit shortest path, and this path would then be the shortest
+ path (this part requires fixing 
+\begin_inset Formula $s$
+\end_inset
+
+ otherwise we could not be guaranteed to create this path with no inner-edges).
+ (the latter part could also be written as: each shortest path between 
+\begin_inset Formula $s$
+\end_inset
+
+ and 
+\begin_inset Formula $v$
+\end_inset
+
+ has at most the length of the orbit path.)
+\end_layout
+
+\begin_layout Section
+Introduction 
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $\phi\left(\x\right)\in\R^{n}$
+\end_inset
+
+, and 
+\begin_inset Formula $I$
+\end_inset
+
+ be the index set of the suff.
+ statistics functions, 
+\begin_inset Formula $I=\left\{ 1,\ldots,n\right\} $
+\end_inset
+
+.
+ Let 
+\begin_inset Formula $\pi=\left\{ \pi_{1},\ldots,\pi_{m}\right\} $
+\end_inset
+
+ be a partition of the indices 
+\begin_inset Formula $I$
+\end_inset
+
+, and for 
+\begin_inset Formula $i\in I$
+\end_inset
+
+ 
+\begin_inset Formula $\pi\left(i\right)$
+\end_inset
+
+ the index of the part in 
+\begin_inset Formula $\pi$
+\end_inset
+
+ that contains 
+\begin_inset Formula $i$
+\end_inset
+
+, i.e.
+ 
+\begin_inset Formula $i\in\pi_{\pi\left(i\right)}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Using a partition 
+\begin_inset Formula $\pi$
+\end_inset
+
+ we can define a 
+\emph on
+symmetric marginal polytope
+\emph default
+ 
+\begin_inset Formula $\M_{\pi}$
+\end_inset
+
+ for a given partition 
+\begin_inset Formula $\pi$
+\end_inset
+
+ as 
+\begin_inset Formula \[
+\M_{\pi}=\left\{ \mu|\exists p.\mu=\E\left[\phi\right]\wedge\forall i\in\left\{ 1,\ldots,m\right\} ,j\in\pi_{i},k\in\pi_{i}.\mu_{j}=\mu_{k}\right\} .\]
+
+\end_inset
+
+That is, 
+\begin_inset Formula $\M_{\pi}$
+\end_inset
+
+ are all vectors 
+\begin_inset Formula $\mu$
+\end_inset
+
+ so that for each part 
+\begin_inset Formula $\pi_{i}$
+\end_inset
+
+ all marginals 
+\begin_inset Formula $\mu_{j}$
+\end_inset
+
+ with 
+\begin_inset Formula $j\in\pi_{i}$
+\end_inset
+
+ are identical.
+\emph on
+
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+
+\size normal
+\color none
+This is still a polytope since we can represent the equality constraints
+ as linear constraints.
+ 
+\end_layout
+
+\end_inset
+
+
+\emph default
+ 
+\end_layout
+
+\begin_layout Standard
+The significance of 
+\begin_inset Formula $\M_{\pi}$
+\end_inset
+
+ is that in the case where 
+\begin_inset Formula $\pi$
+\end_inset
+
+ corresponds to an automorphism group wrt to the network and weights, then
+ the solution to the marginal inference problem lies in 
+\begin_inset Formula $\M_{\pi}\subseteq\M$
+\end_inset
+
+.
+ That is, 
+\begin_inset Formula \[
+\arg\max_{\mu\in\M}\theta^{T}\mu\in\M_{\pi}\]
+
+\end_inset
+
+Since MAP inference is the zero temperature limit of marginal inference,
+ the same holds for MAP.
+ So in both cases it sufficies to search over 
+\begin_inset Formula $\M_{\pi}$
+\end_inset
+
+.
+ (Is this actually true? It seems quite intuitive, but who knows...).
+\end_layout
+
+\begin_layout Section
+Lifting
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\M_{\pi}$
+\end_inset
+
+ can be lifted: instead of having one marginal 
+\begin_inset Formula $\mu_{i}\in\R^{n}$
+\end_inset
+
+ per original sufficient statistics 
+\begin_inset Formula $i$
+\end_inset
+
+, we have one marginal 
+\begin_inset Formula $\psi_{j}\in\R^{m}$
+\end_inset
+
+ per part 
+\begin_inset Formula $\pi_{j}$
+\end_inset
+
+.
+ The meaning of 
+\begin_inset Formula $\psi_{j}$
+\end_inset
+
+ is simply the expectation of the sum of sufficient statistics in 
+\begin_inset Formula $\pi_{j}$
+\end_inset
+
+:
+\begin_inset Formula \[
+\psi_{j}=\E\left[\sum_{i\in\pi_{j}}\phi_{i}\left(y\right)\right]=\sum_{i\in\pi_{j}}\mu_{i}\]
+
+\end_inset
+
+Let's define the mapping 
+\begin_inset Formula $\Phi_{\pi}:\R^{n}\rightarrow\R^{m}$
+\end_inset
+
+ from 
+\begin_inset Formula $\mu\in\R^{n}$
+\end_inset
+
+ to 
+\begin_inset Formula $\psi\in\R^{m}$
+\end_inset
+
+ as 
+\begin_inset Formula \[
+\Phi_{\pi}\left(\mu\right)=\sum_{j}^{m}e_{j}\sum_{i\in\pi_{i}}\mu_{i}=P\mu\]
+
+\end_inset
+
+and call the image of 
+\begin_inset Formula $\M_{\pi}$
+\end_inset
+
+ under 
+\begin_inset Formula $\Phi_{\pi}$
+\end_inset
+
+ the 
+\emph on
+Lifted Marginal Polytope
+\emph default
+ 
+\begin_inset Formula $\S_{\pi}=\Phi_{\pi}\left(\M_{\pi}\right)$
+\end_inset
+
+.
+ 
+\begin_inset Formula $\Phi_{\pi}$
+\end_inset
+
+ is a linear transformation, and we call its matrix 
+\begin_inset Formula $P$
+\end_inset
+
+.
+ Let us also define the mapping 
+\begin_inset Formula $\Xi_{\pi}:\R^{m}\rightarrow\R^{n}$
+\end_inset
+
+ with 
+\begin_inset Formula \[
+\Xi_{\pi}\left(\psi\right)=\sum_{i}^{n}e_{i}\frac{\psi_{\pi\left(i\right)}}{\left|\pi_{\pi\left(i\right)}\right|}=X\psi.\]
+
+\end_inset
+
+For the set 
+\begin_inset Formula $\M_{\pi}$
+\end_inset
+
+ and its image 
+\begin_inset Formula $\S_{\pi}$
+\end_inset
+
+ under 
+\begin_inset Formula $\Phi_{\pi}$
+\end_inset
+
+, the map 
+\begin_inset Formula $\Xi_{\pi}$
+\end_inset
+
+ works as the inverse of 
+\begin_inset Formula $\Phi_{\pi}$
+\end_inset
+
+, that is 
+\begin_inset Formula $\forall\mu\in\M_{\pi}:\Xi_{\pi}\left(\Phi_{\pi}\left(\mu\right)\right)=\mu$
+\end_inset
+
+.
+ 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+Again 
+\begin_inset Formula $\Xi_{\pi}$
+\end_inset
+
+ is a linear transformation, and we use 
+\begin_inset Formula $X$
+\end_inset
+
+ to refer to its matrix
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+.
+\end_layout
+
+\begin_layout Standard
+The core idea of lifted inference is to perform optimization over the lower
+ dimensional (and hopefully easier) space 
+\begin_inset Formula $\S_{\pi}$
+\end_inset
+
+ instead of 
+\begin_inset Formula $\M_{\pi}$
+\end_inset
+
+.
+ To do this, we can transform the linear representation 
+\begin_inset Formula $C\mu\leq\b$
+\end_inset
+
+ of 
+\begin_inset Formula $\M$
+\end_inset
+
+ (and hence 
+\begin_inset Formula $\M_{\pi}$
+\end_inset
+
+) to a linear representation of 
+\begin_inset Formula $\S_{\pi}$
+\end_inset
+
+.
+ This can be done by noting that
+\begin_inset Formula \[
+\psi\in\S_{\pi}\Longleftrightarrow CX\psi\leq\b\]
+
+\end_inset
+
+Here 
+\begin_inset Formula $\psi\in\S_{\pi}\implies CX\psi\leq\b$
+\end_inset
+
+ because 
+\begin_inset Formula $\psi\in\S_{\pi}$
+\end_inset
+
+ implies 
+\begin_inset Formula $\Xi\left(\psi\right)=X\psi\in\M_{\pi}$
+\end_inset
+
+.
+ Likewise 
+\begin_inset Formula $CX\psi\leq\b$
+\end_inset
+
+ implies that 
+\begin_inset Formula $X\psi=\Xi_{\pi}\left(\psi\right)\in\M_{\pi}$
+\end_inset
+
+ and hence 
+\begin_inset Formula $\psi\in\S_{\pi}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The above means that we project any constraint 
+\begin_inset Formula $c^{T}\mu\leq b$
+\end_inset
+
+ to a constraint 
+\begin_inset Formula $c^{T}X\psi\leq b$
+\end_inset
+
+ and that the full set of these constraints describes 
+\begin_inset Formula $\S_{\pi}$
+\end_inset
+
+.
+ Crucially, 
+\begin_inset Formula $CX$
+\end_inset
+
+ will usually be of much lower rank than 
+\begin_inset Formula $C$
+\end_inset
+
+, and hence we hope inference to be easier in 
+\begin_inset Formula $\S_{\pi}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Section
+MAP Inference
+\end_layout
+
+\begin_layout Standard
+Let us solve the MAP inference problem over 
+\begin_inset Formula $\M_{\pi}$
+\end_inset
+
+
+\begin_inset Formula \[
+\max_{\mu\in\M_{\pi}}\theta^{T}\mu=\max_{C\mu\leq\b}\theta^{T}\mu\]
+
+\end_inset
+
+It suffices to solve
+\begin_inset Formula \[
+\max_{C\mu\leq\b}\theta^{T}\mu=\max_{\psi\in\S_{\pi}}\theta^{T}\Xi\left[\psi\right]=\max_{CX\psi\leq\b}\theta^{T}X\psi\]
+
+\end_inset
+
+That is, we can just transform 
+\begin_inset Formula $\theta$
+\end_inset
+
+ using 
+\begin_inset Formula $X$
+\end_inset
+
+, and then perform optimization over 
+\begin_inset Formula $CX\psi\leq\b$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Section
+Marginal Inference
+\end_layout
+
+\begin_layout Standard
+This requires us to optimize 
+\begin_inset Formula \[
+\max_{\psi\in\S_{\pi}}\theta^{T}X\psi+H\left(\Xi_{\pi}\left(\psi\right)\right)\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Can we compactly represent 
+\begin_inset Formula $H\left(\Xi_{\pi}\left(\psi\right)\right)$
+\end_inset
+
+? 
+\end_layout
+
+\begin_layout Section
+Example Constraints
+\end_layout
+
+\begin_layout Standard
+Say we have one part 
+\begin_inset Formula $\pi_{1}=\left\{ 1,2,3,4\right\} $
+\end_inset
+
+ that corresponds to four marginals 
+\begin_inset Formula $\left\{ \mu_{1},\mu_{2},\mu_{3},\mu_{4}\right\} $
+\end_inset
+
+.
+ The easiest constraints on these marginals in 
+\begin_inset Formula $\M$
+\end_inset
+
+ are 
+\begin_inset Formula $\mu_{j}\leq1$
+\end_inset
+
+.
+ When we apply 
+\begin_inset Formula $\Xi_{\pi}$
+\end_inset
+
+ (
+\begin_inset Formula $X$
+\end_inset
+
+) to each of these constraints, we get 
+\begin_inset Formula $\frac{1}{4}\psi_{1}\leq1$
+\end_inset
+
+ or 
+\begin_inset Formula $\psi_{1}\leq4$
+\end_inset
+
+ in each case.
+ Hence four contraints became a single one in the lifted polytope.
+ 
+\end_layout
+
+\begin_layout Standard
+For the marginalization constraints of the local polytope things look similar.
+ Assume we have two sets of symmetric variables 
+\begin_inset Formula $V=\left\{ A,B,C\right\} $
+\end_inset
+
+ and 
+\begin_inset Formula $W=\left\{ D\right\} $
+\end_inset
+
+, that every node in 
+\begin_inset Formula $V$
+\end_inset
+
+ is connected to every node in 
+\begin_inset Formula $W$
+\end_inset
+
+, and that the potentials on these edges are all symmetric.
+ This would mean that one symmetric set of marginals would be 
+\begin_inset Formula $\left\{ \mu_{A;0},\mu_{B;0},\mu_{C;0}\right\} $
+\end_inset
+
+ (which map to 
+\begin_inset Formula $\mu_{V;0}$
+\end_inset
+
+), 
+\begin_inset Formula $\left\{ \mu_{A;1},\mu_{B;1},\mu_{C;1}\right\} $
+\end_inset
+
+ (which map to 
+\begin_inset Formula $\mu_{V;1}$
+\end_inset
+
+), 
+\begin_inset Formula $\left\{ \mu_{D;0}\right\} $
+\end_inset
+
+ (
+\begin_inset Formula $\mu_{W;0}$
+\end_inset
+
+), 
+\begin_inset Formula $\left\{ \mu_{D;1}\right\} $
+\end_inset
+
+ (
+\begin_inset Formula $\mu_{W;1}$
+\end_inset
+
+), 
+\begin_inset Formula $\left\{ \mu_{AD;00},\mu_{BD;00},\mu_{CD;00}\right\} $
+\end_inset
+
+ (
+\begin_inset Formula $\mu_{VW;00}$
+\end_inset
+
+), 
+\begin_inset Formula $\left\{ \mu_{AD;01},\mu_{BD;01},\mu_{CD;01}\right\} $
+\end_inset
+
+ (
+\begin_inset Formula $\mu_{VW;01}$
+\end_inset
+
+) etc.
+ One original marginalization constraint is 
+\begin_inset Formula \[
+\mu_{AD;00}+\mu_{AD;01}=\mu_{A;0}\]
+
+\end_inset
+
+This constraint, and all equivalent ones will be mapped via 
+\begin_inset Formula $\Xi_{\pi}$
+\end_inset
+
+/
+\begin_inset Formula $X$
+\end_inset
+
+ to 
+\begin_inset Formula \[
+\frac{1}{3}\mu_{V,W;00}+\frac{1}{3}\mu_{V,W;01}=\frac{1}{3}\mu_{V;0}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The constraint 
+\begin_inset Formula \[
+\mu_{AD;00}+\mu_{AD;10}=\mu_{D;0}\]
+
+\end_inset
+
+and its equivalent constraints are mapped to 
+\begin_inset Formula \[
+\frac{1}{3}\mu_{V,W;00}+\frac{1}{3}\mu_{V,W;10}=\mu_{W;0}\]
+
+\end_inset
+
+Note that the right hand side has the coefficient 1 instead of 
+\begin_inset Formula $\frac{1}{3}$
+\end_inset
+
+ because 
+\begin_inset Formula $\mu_{D;0}$
+\end_inset
+
+ belongs to a cluster of size 1 instead of 3.
+\end_layout
+
+\end_body
+\end_document
