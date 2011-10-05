@@ -18,12 +18,17 @@ trait NautyLifter {
   def toIndices(string: String): Seq[Int] = {
     if (string.contains(":")) {
       val Array(from, to) = string.split(":")
-      Range(from.trim().toInt, to.trim().toInt)
+      Range(from.trim().toInt, to.trim().toInt + 1)
     } else string.trim().split(" ").map(_.trim.toInt)
   }
 
 
-  def findOrbits(fg:FG, nodeOrbits:Seq[Seq[N]], factorOrbits:Seq[Seq[F]]) = {
+  def findOrbits(fg:FG, nodeOrbits:Seq[Seq[N]]):Orbits = {
+    val factorOrbits = fg.factors.groupBy(_.potential).map(_._2).toSeq
+    findOrbits(fg,nodeOrbits,factorOrbits)
+  }
+
+  def findOrbits(fg:FG, nodeOrbits:Seq[Seq[N]], factorOrbits:Seq[Seq[F]]):Orbits = {
     sealed trait Label
     case class Node(n:N) extends Label
     case class Factor(f:F) extends Label
@@ -55,6 +60,10 @@ trait NautyLifter {
     val factorOrbitVertices = factorOrbits.map(_.map(f => graph.vertex(Factor(f))))
 
     val preOrbits =nodeOrbitVertices ++ factorOrbitVertices ++ argOrbitVertices
+
+    println(argOrbitVertices.mkString("\n"))
+    println(nodeOrbitVertices.mkString("\n"))
+    println(factorOrbitVertices.mkString("\n"))
 
     val result = graph.orbits(preOrbits)
 

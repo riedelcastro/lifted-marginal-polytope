@@ -137,7 +137,7 @@ trait GenericLocalPolytope extends LocalPolytope {
 
   def ensureConsistency(factor: F, nodeIndex: Int, value: V) {
     val node = factor.nodes(nodeIndex)
-    val domains = factor.nodes.map(n => if (n == node) Seq(value) else n.domain)
+    val domains = factor.nodes.zipWithIndex.map({case (n,i) => if (i == nodeIndex) Seq(value) else n.domain})
     val factorTerms = Util.assignments(domains).map(x => Term(1.0, FactorValueVar(factor, x)))
     val nodeTerm = Term(-1.0, NodeValueVar(node, value))
     val terms = factorTerms :+ nodeTerm

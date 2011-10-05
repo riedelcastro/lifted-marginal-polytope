@@ -14,10 +14,13 @@ trait NautyAutomorphismFinder extends AutomorphismFinder {
   private def exec(cmd: String) = Runtime.getRuntime exec cmd
 
   private def toIndices(string: String): Seq[Int] = {
-    if (string.contains(":")) {
-      val Array(from, to) = string.split(":")
-      Range(from.trim().toInt, to.trim().toInt)
-    } else string.trim().split(" ").map(_.trim.toInt)
+    def fromRange(range:String):Seq[Int] = {
+      if (range.contains(":")) {
+        val Array(from, to) = range.split(":")
+        Range(from.trim().toInt, to.trim().toInt + 1)
+      } else Seq(range.toInt)
+    }
+    for (range <- string.split(" "); index <- fromRange(range)) yield index
   }
 
 

@@ -33,7 +33,7 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
   def solve() = {
 
     //find orginal orbits
-    val orbits:Orbits = findOrbits(createFG(nodes,factors),Seq.empty, Seq.empty)
+    val orbits:Orbits = findOrbits(createFG(nodes,factors),Seq.empty)
 
     val nodeOrbits = orbits.nodeOrbits.map(NodeOrbit(_))
     val factorOrbits:Seq[liftedEnv.FactorContent] = orbits.factorOrbits.map(FactorOrbit(_))
@@ -64,6 +64,9 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
     val liftedNodes = orbit2Node.values.toSeq
     val liftedFactors = orbit2Factor.values.toSeq
 
+    println(liftedNodes.mkString("\n"))
+    println(liftedFactors.mkString("\n"))
+
     val liftedFG = liftedEnv.createFG(liftedNodes,liftedFactors)
 
     val liftedMapProblem = new ProxyEnv(liftedEnv) with GurobiLocalMAP
@@ -71,6 +74,8 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
     liftedMapProblem.addFG(liftedFG)
 
     val liftedSolution = liftedMapProblem.solve()
+
+    println(liftedSolution)
 
     new MeanVector {
       val factors = {
@@ -92,11 +97,5 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
         }
       }.toMap
     }
-
-
-
-
-
-    null
   }
 }

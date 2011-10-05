@@ -27,6 +27,11 @@ object SemiTransitiveModelTest {
     val cycleMu = cycles.solve()
     println(cycleMu)
 
+    val lifted = new ProxyEnv(env) with LiftedProblem
+    lifted.addFG(fg)
+    val liftedMu = lifted.solve()
+    println(liftedMu)
+
 
 
   }
