@@ -1,7 +1,5 @@
 package org.riedelcastro.lmp
 
-import sun.net.www.content.text.Generic
-
 /**
  * @author sriedel
  */

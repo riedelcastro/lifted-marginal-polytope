@@ -47,7 +47,7 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
 
   val domain = Seq(true, false)
 
-  var findCycles = false
+  var findCycles = true
 
   class PerOrbitCycleGraph(val orbit: NodeOrbit[N]) {
     val spGraph = new SimpleWeightedGraph[NodeSpec[N], FactorSpec[F]](classOf[FactorSpec[F]])
@@ -101,45 +101,51 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
     //for each orbit, choose one example and create a partition for it
     val cycleGraphs = new ArrayBuffer[PerOrbitCycleGraph]
 
-    for (nodeOrbit <- nodeOrbits) {
-      val cycleGraph = new PerOrbitCycleGraph(nodeOrbit)
-      cycleGraphs += cycleGraph
-      import cycleGraph._
-      val rest = nodeOrbit.nodes.filter(_ != example)
-      val otherParts = nodeOrbits.filter(_ != nodeOrbit).map(_.nodes)
-      val refinedPartition = Seq(Seq(example), rest) ++ otherParts
-      val refinedOrbits = findOrbits(fg, refinedPartition, orbits.factorOrbits)
+    if (findCycles) {
+      for (nodeOrbit <- nodeOrbits) {
+        val cycleGraph = new PerOrbitCycleGraph(nodeOrbit)
+        cycleGraphs += cycleGraph
+        import cycleGraph._
+        val rest = nodeOrbit.nodes.filter(_ != example)
+        val otherParts = nodeOrbits.filter(_ != nodeOrbit).map(_.nodes)
+        val refinedPartition = Seq(Seq(example), rest) ++ otherParts
+        val refinedOrbits = findOrbits(fg, refinedPartition, orbits.factorOrbits)
 
-      //for each new orbit, create two vertices
-      for (part <- refinedOrbits.nodeOrbits) {
-        val orbit = NodeOrbit(part)
-        spGraph.addVertex(NodeSpec(orbit, false))
-        spGraph.addVertex(NodeSpec(orbit, true))
-        for (node <- part) node2orbit(node) = orbit
-      }
-
-      //for each (binary) factor orbit create set of edges
-      for (part <- refinedOrbits.factorOrbits) {
-        val factor = part.head
-        if (factor.nodes.size == 2) {
-          //figure out the node orbits to connect to
-          val arg1 = node2orbit(factor.nodes(0))
-          val arg2 = node2orbit(factor.nodes(1))
-
-          val factorOrbit = FactorOrbit(part)
-
-          val spec11 = FactorSpec(factorOrbit, true, true)
-          val spec00 = FactorSpec(factorOrbit, false, false)
-          val spec01 = FactorSpec(factorOrbit, false, true)
-          val spec10 = FactorSpec(factorOrbit, true, false)
-          spGraph.addEdge(NodeSpec(arg1, true), NodeSpec(arg2, true), spec11)
-          spGraph.addEdge(NodeSpec(arg1, false), NodeSpec(arg2, false), spec00)
-          spGraph.addEdge(NodeSpec(arg1, false), NodeSpec(arg2, true), spec01)
-          spGraph.addEdge(NodeSpec(arg1, true), NodeSpec(arg2, false), spec10)
-
+        //for each new orbit, create two vertices
+        for (part <- refinedOrbits.nodeOrbits) {
+          val orbit = NodeOrbit(part)
+          spGraph.addVertex(NodeSpec(orbit, false))
+          spGraph.addVertex(NodeSpec(orbit, true))
+          for (node <- part) node2orbit(node) = orbit
         }
-      }
 
+        //for each (binary) factor orbit create set of edges
+        for (part <- refinedOrbits.factorOrbits) {
+          val factor = part.head
+          if (factor.nodes.size == 2) {
+            //figure out the node orbits to connect to
+            val arg1 = node2orbit(factor.nodes(0))
+            val arg2 = node2orbit(factor.nodes(1))
+
+            val factorOrbit = FactorOrbit(part)
+
+            val spec11 = FactorSpec(factorOrbit, true, true)
+            val spec00 = FactorSpec(factorOrbit, false, false)
+            val spec01 = FactorSpec(factorOrbit, false, true)
+            val spec10 = FactorSpec(factorOrbit, true, false)
+
+            if (arg1 != arg2) {
+              spGraph.addEdge(NodeSpec(arg1, true), NodeSpec(arg2, true), spec11)
+              spGraph.addEdge(NodeSpec(arg1, false), NodeSpec(arg2, false), spec00)
+            }
+
+            spGraph.addEdge(NodeSpec(arg1, false), NodeSpec(arg2, true), spec01)
+            spGraph.addEdge(NodeSpec(arg1, true), NodeSpec(arg2, false), spec10)
+
+          }
+        }
+
+      }
     }
 
 
@@ -156,64 +162,70 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
 
     liftedMapProblem.addFG(liftedFG)
 
-    val liftedSolution = liftedMapProblem.solve()
+    var liftedSolution = liftedMapProblem.solve()
 
     println(liftedSolution)
 
     if (findCycles) {
-      val paths = for (cg <- cycleGraphs) yield {
-        //go over edges set weights
-        for (spEdge <- cg.spGraph.edgeSet()) {
-          //need to find a factor in common lifted graph
+      var constraint: Option[liftedMapProblem.Constraint] = None
+      do {
+        val paths = for (cg <- cycleGraphs) yield {
+          //go over edges set weights
+          for (spEdge <- cg.spGraph.edgeSet()) {
+            //need to find a factor in common lifted graph
+            val example = spEdge.factor.example
+            val lifted = factor2Orbit(example)
+            val liftedFactor = orbit2Factor(lifted)
+            val weight = if (spEdge.sameCopy) {
+              val mu01 = liftedSolution.factors(liftedMapProblem.FactorValueVar(liftedFactor, Seq(false, true)))
+              val mu10 = liftedSolution.factors(liftedMapProblem.FactorValueVar(liftedFactor, Seq(true, false)))
+              mu01 + mu10
+            } else {
+              val mu00 = liftedSolution.factors(liftedMapProblem.FactorValueVar(liftedFactor, Seq(false, false)))
+              val mu11 = liftedSolution.factors(liftedMapProblem.FactorValueVar(liftedFactor, Seq(true, true)))
+              mu00 + mu11
+            }
+            cg.spGraph.setEdgeWeight(spEdge, weight)
+          }
+          val from = NodeSpec(cg.exampleOrbit, true)
+          val to = NodeSpec(cg.exampleOrbit, false)
+
+          val sp = new DijkstraShortestPath(cg.spGraph, from, to)
+          sp.getPath
+        }
+
+        val shortest = paths.minBy(_.getWeight)
+        def varPair(spEdge: FactorSpec[F]) = {
           val example = spEdge.factor.example
           val lifted = factor2Orbit(example)
           val liftedFactor = orbit2Factor(lifted)
-          val weight = if (spEdge.sameCopy) {
-            val mu01 = liftedSolution.factors(liftedMapProblem.FactorValueVar(liftedFactor, Seq(false, true)))
-            val mu10 = liftedSolution.factors(liftedMapProblem.FactorValueVar(liftedFactor, Seq(true, false)))
-            mu01 + mu10
+          if (spEdge.sameCopy) {
+            liftedMapProblem.FactorValueVar(liftedFactor, Seq(false, true)) ->
+              liftedMapProblem.FactorValueVar(liftedFactor, Seq(true, false))
           } else {
-            val mu00 = liftedSolution.factors(liftedMapProblem.FactorValueVar(liftedFactor, Seq(false, false)))
-            val mu11 = liftedSolution.factors(liftedMapProblem.FactorValueVar(liftedFactor, Seq(true, true)))
-            mu00 + mu11
+            liftedMapProblem.FactorValueVar(liftedFactor, Seq(false, false)) ->
+              liftedMapProblem.FactorValueVar(liftedFactor, Seq(true, true))
           }
-          cg.spGraph.setEdgeWeight(spEdge, weight)
         }
-        val from = NodeSpec(cg.exampleOrbit, true)
-        val to = NodeSpec(cg.exampleOrbit, false)
+        def varSeq(spEdge: FactorSpec[F]) = {
+          val pair = varPair(spEdge)
+          Seq(pair._1, pair._2)
+        }
 
-        val sp = new DijkstraShortestPath(cg.spGraph, from, to)
-        sp.getPath
-      }
-
-      val shortest = paths.minBy(_.getWeight)
-      def varPair(spEdge: FactorSpec[F]) = {
-        val example = spEdge.factor.example
-        val lifted = factor2Orbit(example)
-        val liftedFactor = orbit2Factor(lifted)
-        if (spEdge.sameCopy) {
-          liftedMapProblem.FactorValueVar(liftedFactor, Seq(false, true)) ->
-            liftedMapProblem.FactorValueVar(liftedFactor, Seq(true, false))
+        constraint = if (shortest.getWeight < 1.0) {
+          val terms = for (spEdge <- shortest.getEdgeList; v <- varSeq(spEdge)) yield liftedMapProblem.Term(1.0, v)
+          val constraint = liftedMapProblem.Constraint(terms, liftedMapProblem.GEQ, 1.0)
+          Some(constraint)
         } else {
-          liftedMapProblem.FactorValueVar(liftedFactor, Seq(false, false)) ->
-            liftedMapProblem.FactorValueVar(liftedFactor, Seq(true, true))
+          None
         }
-      }
-      def varSeq(spEdge: FactorSpec[F]) = {
-        val pair = varPair(spEdge)
-        Seq(pair._1, pair._2)
-      }
+        for (c <- constraint) {
+          liftedMapProblem.addConstraint(c)
+          liftedSolution = liftedMapProblem.solve()
+        }
 
-      val constraint = if (shortest.getWeight < 1.0) {
-        val terms = for (spEdge <- shortest.getEdgeList; v <- varSeq(spEdge)) yield liftedMapProblem.Term(1.0, v)
-        val constraint = liftedMapProblem.Constraint(terms, liftedMapProblem.GEQ, 1.0)
-        Some(constraint)
-      } else {
-        None
-      }
-      for (c <- constraint) {
-        liftedMapProblem.addConstraint(c)
-      }
+
+      } while (constraint.isDefined)
 
     }
 

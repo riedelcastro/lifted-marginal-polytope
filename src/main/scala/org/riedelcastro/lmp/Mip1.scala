@@ -55,7 +55,7 @@ object Mip1 {
   }
 }
 
-object SemitransitiveModel {
+object SemitransitiveModelOld {
 
   def main(args: Array[String]) {
     case class Node(x: Int, y: Int) {
