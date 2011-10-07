@@ -1,11 +1,14 @@
 package org.riedelcastro.lmp
 
+import util.Random
+
 /**
  * @author sriedel
  */
 object SemiTransitiveModelTest {
 
   import SemiTransitiveModel._
+
 
   def main(args: Array[String]) {
     val env = new SimpleFactorGraphEnv[Pred, Boolean] with SemiTransitiveModel
@@ -14,7 +17,7 @@ object SemiTransitiveModelTest {
       Seq(false, true) -> 0.0,
       Seq(true, false) -> 0.0,
       Seq(true, true) -> -1.0)
-    val fg = env.createSemiTransitiveFG(3, scores)
+    val fg = env.createSemiTransitiveFGWithRandomLocalFactors(4, 0.5, 0.01, scores)
     val local = new ProxyEnv(env) with GurobiLocalMAP
     local.addFG(fg)
     val localMu = local.solve()
@@ -31,13 +34,15 @@ object SemiTransitiveModelTest {
     println(liftedMu)
 
 
-
   }
 
 }
 
 object SemiTransitiveModel {
   case class Pred(x: Int, y: Int)
+
+  val random = new Random(0)
+
 
 }
 
@@ -59,6 +64,42 @@ trait SemiTransitiveModel extends FactorGraphEnv {
     }
     createFG(nodes.values.toSeq, factors)
   }
+
+
+  def createSemiTransitiveFGWithLocalFactors(size: Int,
+                                             localFactorCount: Int = 0,
+                                             localScore: Double,
+                                             scores: PartialFunction[Seq[Boolean], Double]) = {
+    val I = 0 until size
+    val pot = createPotential(scores)
+    val localPot = createPotential({case Seq(true) => localScore; case _ => 0.0})
+    val nodes = (for (x <- I; y <- I; if (x != y)) yield (x, y) -> createNode(Pred(x, y), domain)).toMap
+    val local = for (node <- nodes.values.take(localFactorCount)) yield {
+      createFactor(Vector(node), localPot)
+    }
+    val binary = for (x <- I; y <- I; if (x != y); z <- I; if (z != y && z != x)) yield {
+      createFactor(Vector(nodes(x, y), nodes(y, z)), pot)
+    }
+    createFG(nodes.values.toSeq, binary ++ local)
+  }
+
+  def createSemiTransitiveFGWithRandomLocalFactors(size: Int,
+                                             prob: Double = 1.0,
+                                             localScore: Double,
+                                             scores: PartialFunction[Seq[Boolean], Double]) = {
+    val I = 0 until size
+    val pot = createPotential(scores)
+    val localPot = createPotential({case Seq(true) => localScore; case _ => 0.0})
+    val nodes = (for (x <- I; y <- I; if (x != y)) yield (x, y) -> createNode(Pred(x, y), domain)).toMap
+    val local = for (node <- nodes.values; if (SemiTransitiveModel.random.nextDouble() < prob)) yield {
+      createFactor(Vector(node), localPot)
+    }
+    val binary = for (x <- I; y <- I; if (x != y); z <- I; if (z != y && z != x)) yield {
+      createFactor(Vector(nodes(x, y), nodes(y, z)), pot)
+    }
+    createFG(nodes.values.toSeq, binary ++ local)
+  }
+
 
 }
 

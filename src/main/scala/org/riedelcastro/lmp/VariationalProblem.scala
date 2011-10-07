@@ -52,6 +52,11 @@ trait VariationalProblem extends SearchSpace with Objective {
       val fs = factors.map({case (f,s) => "%-20s: %f".format(f,s)}).mkString("\n")
       vs + "\n" + fs
     }
+     def nodesString = {
+      val vs = variables.map({case (v,s) => "%-20s: %f".format(v,s)}).mkString("\n")
+      vs
+    }
+
   }
 
   def solve(): MeanVector
