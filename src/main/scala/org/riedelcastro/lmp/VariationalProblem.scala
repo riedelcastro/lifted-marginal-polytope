@@ -45,6 +45,11 @@ trait VariationalProblem extends SearchSpace with Objective {
   case class Constraint(vars: Seq[Term], comp: Comp, rhs: Double)
 
   trait MeanVector {
+
+    def nodeAvg(nodeValues:Seq[(N,V)]) = {
+      nodeValues.map(pair => variables(NodeValueVar(pair._1,pair._2))).sum / nodeValues.size
+    }
+
     def variables: Map[NodeValueVar, Double]
     def factors: Map[FactorValueVar, Double]
     override def toString = {

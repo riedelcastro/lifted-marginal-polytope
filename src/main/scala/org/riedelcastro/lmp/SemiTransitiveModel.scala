@@ -1,6 +1,7 @@
 package org.riedelcastro.lmp
 
 import util.Random
+import org.riedelcastro.lmp.LiftedProblem.NodeOrbit
 
 /**
  * @author sriedel
@@ -17,7 +18,7 @@ object SemiTransitiveModelTest {
       Seq(false, true) -> 0.0,
       Seq(true, false) -> 0.0,
       Seq(true, true) -> -1.0)
-    val fg = env.createSemiTransitiveFGWithRandomLocalFactors(4, 0.5, 0.01, scores)
+    val fg = env.createSemiTransitiveFGWithLocalFactors(4, 4 * 4 - 4 - 1, 0.01, scores)
     val local = new ProxyEnv(env) with GurobiLocalMAP
     local.addFG(fg)
     val localMu = local.solve()
@@ -32,6 +33,16 @@ object SemiTransitiveModelTest {
     lifted.addFG(fg)
     val liftedMu = lifted.solve()
     println(liftedMu)
+
+    for (nodeOrbit <- lifted.nodeOrbits) {
+      val localAvg = localMu.nodeAvg(nodeOrbit.nodes.map(_ -> true))
+      val cycleAvg = cycleMu.nodeAvg(nodeOrbit.nodes.map(_ -> true))
+      val liftedAvg = liftedMu.nodeAvg(nodeOrbit.nodes.map(_ -> true))
+
+      println(nodeOrbit.nodes.map(_.id).mkString(" "))
+      println("%5f %5f %5f".format(localAvg,cycleAvg,liftedAvg))
+
+    }
 
 
   }

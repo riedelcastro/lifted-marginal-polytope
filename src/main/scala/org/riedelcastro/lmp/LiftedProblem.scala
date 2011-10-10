@@ -49,6 +49,10 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
 
   var findCycles = true
 
+  var nodeOrbits:Seq[NodeOrbit[N]] = null
+
+  var iterations = 0
+
   class PerOrbitCycleGraph(val orbit: NodeOrbit[N]) {
     val spGraph = new SimpleWeightedGraph[NodeSpec[N], FactorSpec[F]](classOf[FactorSpec[F]])
     val node2orbit = new HashMap[N, NodeOrbit[N]]
@@ -60,12 +64,14 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
 
   def solve() = {
 
+    iterations = 0
+
     //find orginal orbits
     val fg = createFG(nodes, factors)
     val orbits: Orbits = findOrbits(fg, Seq.empty)
 
 
-    val nodeOrbits = orbits.nodeOrbits.map(NodeOrbit(_))
+    nodeOrbits = orbits.nodeOrbits.map(NodeOrbit(_))
     val factorOrbits: Seq[liftedEnv.FactorContent] = orbits.factorOrbits.map(FactorOrbit(_))
 
 
@@ -166,6 +172,8 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
 
     var liftedSolution = liftedMapProblem.solve()
 
+    iterations += 1
+
     println(liftedSolution.nodesString)
 
     if (findCycles) {
@@ -224,6 +232,7 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
         for (c <- constraint) {
           liftedMapProblem.addConstraint(c)
           liftedSolution = liftedMapProblem.solve()
+          iterations += 1
           println(liftedSolution.nodesString)
         }
 
