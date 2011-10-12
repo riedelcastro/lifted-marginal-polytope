@@ -18,7 +18,7 @@ trait FactorGraphEnv {
 
   def createNode(id: Id, domain: Seq[V]): N
   def createFactor(nodes: Seq[N], potential: P): F
-  def createPotential(func: PartialFunction[Seq[V], Double]): P
+  def createPotential(func: PartialFunction[Seq[V], Double], symmetric: Boolean = false): P
   def createFG(nodes: Seq[N], factors: Seq[F]): FG
 
 
@@ -32,6 +32,7 @@ object FactorGraphEnv {
   }
   trait Potential[V] {
     def func: PartialFunction[Seq[V], Double]
+    def symmetric: Boolean
   }
   trait Factor[Id, V, N <: Node[Id, V], P <: Potential[V]] {
     def nodes: Seq[N]
@@ -52,7 +53,7 @@ object FactorGraphEnv {
     override def toString = nodes.mkString("Factor(", ",", ")")
   }
 
-  case class SimpleFactorWithContent[Id, V, N <: Node[Id, V], P <: Potential[V],C](nodes: Seq[N], potential: P, content:C)
+  case class SimpleFactorWithContent[Id, V, N <: Node[Id, V], P <: Potential[V], C](nodes: Seq[N], potential: P, content: C)
     extends Factor[Id, V, N, P] {
     override def toString = nodes.mkString("Factor(", ",", ")")
   }
@@ -67,7 +68,7 @@ object FactorGraphEnv {
   }
 
 
-  case class SimplePotential[V](func: PartialFunction[Seq[V], Double]) extends Potential[V]
+  case class SimplePotential[V](func: PartialFunction[Seq[V], Double], symmetric: Boolean = false) extends Potential[V]
   case class SimpleFactorGraph[Id, V, N <: Node[Id, V], P <: Potential[V], F <: Factor[Id, V, N, P]](nodes: Seq[N],
                                                                                                      factors: Seq[F])
     extends FactorGraph[Id, V, N, P, F]
@@ -87,7 +88,7 @@ class ProxyEnv[Underlying <: FactorGraphEnv](val underlying: Underlying) extends
   def createFactor(nodes: Seq[N], potential: P) = underlying.createFactor(nodes, potential)
   def createFG(nodes: Seq[N], factors: Seq[F]) = underlying.createFG(nodes, factors)
   def createNode(id: Id, domain: Seq[V]) = underlying.createNode(id, domain)
-  def createPotential(func: PartialFunction[Seq[V], Double]) = underlying.createPotential(func)
+  def createPotential(func: PartialFunction[Seq[V], Double], symmetric:Boolean) = underlying.createPotential(func,symmetric)
 }
 
 
@@ -99,7 +100,7 @@ class SimpleFactorGraphEnv[ID, Value] extends FactorGraphEnv {
   type V = Value
   def createFactor(nodes: Seq[N], potential: P) = SimpleFactor(nodes, potential)
   def createNode(id: Id, domain: Seq[V]) = SimpleNode(id, domain)
-  def createPotential(func: PartialFunction[Seq[V], Double]) = SimplePotential(func)
+  def createPotential(func: PartialFunction[Seq[V], Double], symmetric: Boolean = false) = SimplePotential(func, symmetric)
   def createFG(nodes: Seq[N], factors: Seq[F]) = SimpleFactorGraph(nodes, factors)
   type F = SimpleFactor[Id, V, N, P]
   type N = SimpleNode[Id, V]
@@ -116,11 +117,11 @@ class SimpleFactorGraphEnvWithContent[ID, Value, FC] extends FactorGraphEnv {
   type V = Value
   type FactorContent = FC
   def createFactor(nodes: Seq[N], potential: P) =
-    SimpleFactorWithContent[Id,V,N,P,FactorContent](nodes, potential,null.asInstanceOf[FactorContent])
-  def createFactor(nodes: Seq[N], potential: P, content:FactorContent) =
-    SimpleFactorWithContent[Id,V,N,P,FactorContent](nodes, potential,content)
+    SimpleFactorWithContent[Id, V, N, P, FactorContent](nodes, potential, null.asInstanceOf[FactorContent])
+  def createFactor(nodes: Seq[N], potential: P, content: FactorContent) =
+    SimpleFactorWithContent[Id, V, N, P, FactorContent](nodes, potential, content)
   def createNode(id: Id, domain: Seq[V]) = SimpleNode(id, domain)
-  def createPotential(func: PartialFunction[Seq[V], Double]) = SimplePotential(func)
+  def createPotential(func: PartialFunction[Seq[V], Double], symmetric:Boolean) = SimplePotential(func,symmetric)
   def createFG(nodes: Seq[N], factors: Seq[F]) = SimpleFactorGraph(nodes, factors)
   type F = SimpleFactorWithContent[Id, V, N, P, FactorContent]
   type N = SimpleNode[Id, V]
@@ -151,7 +152,7 @@ class SimpleBinaryEdgeGraphEnv[ID, Value] extends BinaryEdgeGraphEnv {
   }
 
   def createNode(id: Id, domain: Seq[V]) = SimpleNode(id, domain)
-  def createPotential(func: PartialFunction[Seq[V], Double]) = SimplePotential(func)
+  def createPotential(func: PartialFunction[Seq[V], Double], symmetric:Boolean) = SimplePotential(func,symmetric)
   def createFG(nodes: Seq[N], factors: Seq[F]) = SimpleFactorGraph(nodes, factors)
   type F = Edge[Id, V, N, P]
   type N = SimpleNode[Id, V]

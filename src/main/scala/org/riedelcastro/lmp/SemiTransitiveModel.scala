@@ -18,21 +18,21 @@ object SemiTransitiveModelTest {
       Seq(false, true) -> 0.0,
       Seq(true, false) -> 0.0,
       Seq(true, true) -> -1.0)
-    val fg = env.createSemiTransitiveFGWithLocalFactors(4, 3, 0.1, scores)
+    val fg = env.createSemiTransitiveFGWithLocalFactors(5, 1, 0.1, scores)
     val local = new ProxyEnv(env) with GurobiLocalMAP
     local.addFG(fg)
     val localMu = local.solve()
     println(localMu)
 
-    val cycles = new ProxyEnv(env) with GurobiLocalMAP with CuttingPlaneProblem with CycleSeparationOracle
-    cycles.addFG(fg)
-    val cycleMu = cycles.solve()
-    println(cycleMu)
-
     val lifted = new ProxyEnv(env) with LiftedProblem
     lifted.addFG(fg)
     val liftedMu = lifted.solve()
     println(liftedMu)
+
+    val cycles = new ProxyEnv(env) with GurobiLocalMAP with CuttingPlaneProblem with CycleSeparationOracle
+    cycles.addFG(fg)
+    val cycleMu = cycles.solve()
+    println(cycleMu)
 
     for (nodeOrbit <- lifted.nodeOrbits) {
       val localAvg = localMu.nodeAvg(nodeOrbit.nodes.map(_ -> true))
@@ -86,7 +86,7 @@ trait SemiTransitiveModel extends FactorGraphEnv {
                                              localScore: Double,
                                              scores: PartialFunction[Seq[Boolean], Double]) = {
     val I = 0 until size
-    val pot = createPotential(scores)
+    val pot = createPotential(scores, true)
     val posLocalPot = createPotential({case Seq(true) => localScore; case _ => 0.0})
     val negLocalPot = createPotential({case Seq(true) => -localScore; case _ => 0.0})
     val nodes = (for (x <- I; y <- I; if (x != y)) yield (x, y) -> createNode(Pred(x, y), domain)).toMap

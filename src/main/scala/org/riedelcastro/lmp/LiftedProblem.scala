@@ -64,6 +64,8 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
 
   }
 
+  var eps = 0.0001
+
   def solve() = {
 
     iterations = 0
@@ -224,7 +226,7 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
           Seq(pair._1, pair._2)
         }
 
-        constraint = if (shortest.getWeight < 1.0) {
+        constraint = if (shortest.getWeight < 1.0 - eps) {
           val terms = for (spEdge <- shortest.getEdgeList; v <- varSeq(spEdge)) yield liftedMapProblem.Term(1.0, v)
           val constraint = liftedMapProblem.Constraint(terms, liftedMapProblem.GEQ, 1.0)
           Some(constraint)
@@ -232,6 +234,12 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
           None
         }
         for (c <- constraint) {
+          println("Shortest Path weight: " + shortest.getWeight)
+          println("Shortest Path:")
+          for (term <- c.vars) {
+            println("%30s %f".format(term.variable, liftedSolution.factors(term.variable.asInstanceOf[liftedMapProblem.FactorValueVar])))
+          }
+          println("Adding constraint\n" + c )
           liftedMapProblem.addConstraint(c)
           liftedSolution = liftedMapProblem.solve()
           iterations += 1

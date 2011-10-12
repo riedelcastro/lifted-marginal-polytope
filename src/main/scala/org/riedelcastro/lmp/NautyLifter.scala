@@ -45,7 +45,7 @@ trait NautyLifter {
     for (factor <- fg.factors){
       val factorV = graph.addVertex(Factor(factor))
       for ((node,index) <- factor.nodes.zipWithIndex) {
-        val arg = Arg(factor,index)
+        val arg = Arg(factor,if (factor.potential.symmetric) 0 else index)
         val argV = graph.addVertex(arg)
         val nodeV = graph.vertex(Node(node))
         graph.addEdge(factorV,argV)
