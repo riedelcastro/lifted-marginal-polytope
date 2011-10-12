@@ -18,6 +18,8 @@ trait GurobiProblem extends VariationalProblem with Polytope with LinearObjectiv
 
   protected var updated = false
 
+  var objective = 0.0
+
   def getOrCreateVar(v: Var): GRBVar = {
     vars.getOrElseUpdate(v, {
       updated = false
@@ -70,6 +72,8 @@ trait GurobiProblem extends VariationalProblem with Polytope with LinearObjectiv
 //    model.write("test.mps")
 //    model.write("test.lp")
 
+
+    objective = model.get(GRB.DoubleAttr.ObjVal)
 
     val factorMeans = factorVars.map(v => {
       val gurobiVar = getOrCreateVar(v)

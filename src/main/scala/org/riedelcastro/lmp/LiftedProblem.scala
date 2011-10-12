@@ -53,6 +53,8 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
 
   var iterations = 0
 
+  var objective = 0.0
+
   class PerOrbitCycleGraph(val orbit: NodeOrbit[N]) {
     val spGraph = new SimpleWeightedGraph[NodeSpec[N], FactorSpec[F]](classOf[FactorSpec[F]])
     val node2orbit = new HashMap[N, NodeOrbit[N]]
@@ -238,6 +240,7 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
 
 
       } while (constraint.isDefined)
+      objective = liftedMapProblem.objective
 
     }
 
