@@ -61,7 +61,6 @@ trait GurobiProblem extends VariationalProblem with Polytope with LinearObjectiv
     val v = getOrCreateVar(term.variable)
     update()
     v.set(GRB.DoubleAttr.Obj, -term.coeff)
-    println("Coefficient for %s set to %f".format(term.variable,-term.coeff))
   }
 
   def solve() = {
@@ -73,7 +72,7 @@ trait GurobiProblem extends VariationalProblem with Polytope with LinearObjectiv
 //    model.write("test.lp")
 
 
-    objective = model.get(GRB.DoubleAttr.ObjVal)
+    objective = -model.get(GRB.DoubleAttr.ObjVal)
 
     val factorMeans = factorVars.map(v => {
       val gurobiVar = getOrCreateVar(v)

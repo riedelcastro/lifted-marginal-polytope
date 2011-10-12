@@ -12,26 +12,27 @@ object SemiTransitiveModelTest {
 
 
   def main(args: Array[String]) {
+    val timer = new Timer()
     val env = new SimpleFactorGraphEnv[Pred, Boolean] with SemiTransitiveModel
     val scores = Map(
       Seq(false, false) -> -1.0,
       Seq(false, true) -> 0.0,
       Seq(true, false) -> 0.0,
       Seq(true, true) -> -1.0)
-    val fg = env.createSemiTransitiveFGWithLocalFactors(5, 1, 0.1, scores)
+    val fg = env.createSemiTransitiveFGWithLocalFactors(4, 1, 0.1, scores)
     val local = new ProxyEnv(env) with GurobiLocalMAP
     local.addFG(fg)
-    val localMu = local.solve()
+    val localMu = timer.time("local",local.solve())
     println(localMu)
 
     val lifted = new ProxyEnv(env) with LiftedProblem
     lifted.addFG(fg)
-    val liftedMu = lifted.solve()
+    val liftedMu = timer.time("lifted",lifted.solve())
     println(liftedMu)
 
     val cycles = new ProxyEnv(env) with GurobiLocalMAP with CuttingPlaneProblem with CycleSeparationOracle
     cycles.addFG(fg)
-    val cycleMu = cycles.solve()
+    val cycleMu = timer.time("cycles",cycles.solve())
     println(cycleMu)
 
     for (nodeOrbit <- lifted.nodeOrbits) {
@@ -46,6 +47,10 @@ object SemiTransitiveModelTest {
     println("Local:  %f".format(local.objective))
     println("Cycles: %f".format(cycles.objective))
     println("Lifted: %f".format(lifted.objective))
+
+    println(timer)
+    println("Cycle iterations:  " + cycles.iterations)
+    println("Lifted iterations: " + lifted.iterations)
 
 
 

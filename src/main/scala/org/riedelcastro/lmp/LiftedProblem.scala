@@ -165,8 +165,8 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
     val liftedNodes = orbit2Node.values.toSeq
     val liftedFactors = orbit2Factor.values.toSeq
 
-    println(liftedNodes.mkString("\n"))
-    println(liftedFactors.mkString("\n"))
+//    println(liftedNodes.mkString("\n"))
+//    println(liftedFactors.mkString("\n"))
 
     val liftedFG = liftedEnv.createFG(liftedNodes, liftedFactors)
 
@@ -178,7 +178,7 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
 
     iterations += 1
 
-    println(liftedSolution.nodesString)
+//    println(liftedSolution.nodesString)
 
     if (findCycles) {
       var constraint: Option[liftedMapProblem.Constraint] = None
@@ -239,11 +239,9 @@ trait LiftedProblem extends VariationalProblem with NautyLifter {
           for (term <- c.vars) {
             println("%30s %f".format(term.variable, liftedSolution.factors(term.variable.asInstanceOf[liftedMapProblem.FactorValueVar])))
           }
-          println("Adding constraint\n" + c )
           liftedMapProblem.addConstraint(c)
           liftedSolution = liftedMapProblem.solve()
           iterations += 1
-          println(liftedSolution.nodesString)
         }
 
 

@@ -9,14 +9,19 @@ import collection.mutable.{ArrayBuffer, HashMap}
 trait CuttingPlaneProblem extends VariationalProblem {
   this: FactorGraphEnv with Polytope with SeparationOracle =>
 
+  var iterations = 0
+
   abstract override def solve() = {
     var mu: MeanVector = null
     var cut: Option[Constraint] = None
+
+    iterations = 0
 
     do {
       mu = super.solve()
       cut = separate(mu)
       for (c <- cut) addConstraint(c)
+      iterations += 1
     } while (cut.isDefined)
     mu
   }

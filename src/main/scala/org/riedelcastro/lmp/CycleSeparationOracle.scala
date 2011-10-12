@@ -14,6 +14,8 @@ trait CycleSeparationOracle extends SeparationOracle with VariationalProblem {
 
   this: FactorGraphEnv {type V = Boolean} =>
 
+  var eps = 0.00001
+
   case class NodeSpec(node: N, copy1: Boolean)
   case class FactorSpec(factor: F, copy1: Boolean, copy2: Boolean) extends DefaultWeightedEdge {
     def sameCopy = copy1 == copy2
@@ -68,7 +70,7 @@ trait CycleSeparationOracle extends SeparationOracle with VariationalProblem {
 
     //find minimum path of all
     val shortest = paths.minBy(_.getWeight)
-    if (shortest.getWeight < 1.0) {
+    if (shortest.getWeight < 1.0 - eps) {
       val terms = for (spEdge <- shortest.getEdgeList; v <- spEdge.varSeq) yield Term(1.0,v)
       val constraint = Constraint(terms,GEQ, 1.0)
       Some(constraint)
